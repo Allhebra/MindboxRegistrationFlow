@@ -1,0 +1,64 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+interface PushRegistrationStateHolder {
+proceed()
+onNewFbToken(token: String)
+resetCustomerAuthorized()
+}
+class PushRegistrationStateHolderImpl {
+private var currentState: PushRegistrationState
+override proceed()
+override onNewFbToken(token: String)
+override resetCustomerAuthorized()
+
+private proceedInternal()
+}
+
+abstract class PushRegistrationState {
+abstract action: PushRegistrationAction
+abstract performAction()
+
+performNextState(newState: PushRegistrationState)
+}
+
+abstract class PushRegistrationAction {
+disposable: Disposable
+abstract perform(param: Any, onSuccess: (() -> Unit))
+
+release()
+}
+
+PushRegistrationStateHolder <|.. PushRegistrationStateHolderImpl
+PushRegistrationStateHolderImpl *-- PushRegistrationState
+PushRegistrationState *---- PushRegistrationAction
+
+object Init
+object FbTokenAppointed
+object InstallationRegistered
+object FbTokenRegistered
+object PushSubscriberRegistered
+object AuthorizationCompleted
+
+class AuthorizePushCustomerAction
+class MindBoxInitAction
+class ResetRegistrationStateAction
+class RetrieveFbTokenAction
+class SendTokenToAzureAction
+class SubscribeToMobilePushAction
+
+PushRegistrationState <|-- Init
+PushRegistrationState <|--- FbTokenAppointed
+PushRegistrationState <|---- InstallationRegistered
+PushRegistrationState <|----- FbTokenRegistered
+PushRegistrationState <|------ PushSubscriberRegistered
+PushRegistrationState <|------- AuthorizationCompleted
+
+PushRegistrationAction <|-- AuthorizePushCustomerAction
+PushRegistrationAction <|--- MindBoxInitAction
+PushRegistrationAction <|---- ResetRegistrationStateAction
+PushRegistrationAction <|----- RetrieveFbTokenAction
+PushRegistrationAction <|------ SendTokenToAzureAction
+PushRegistrationAction <|------- SubscribeToMobilePushAction
+
+@enduml
